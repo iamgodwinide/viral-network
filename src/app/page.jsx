@@ -97,11 +97,6 @@ const WorldMap = () => {
       touchZoomRotate: false // disable 3D touch rotation
     });
 
-    map.addSource("geo-json-data", {
-      type: 'geojson',
-      data: geodata,
-    });
-
     const bounds = [[-180, -85], [180, 85]];  // Coordinates [Southwest, Northeast]
 
     map.fitBounds(bounds, {
