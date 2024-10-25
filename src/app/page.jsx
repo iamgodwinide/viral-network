@@ -6,7 +6,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';  // Import Mapbox CSS
 import styles from "./styles.module.css"
 import cities from './data/cities/unified.json';
 import popupData from './data/popups/index.json';
-
+import geodata from './custom.geo.json';
 
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiY3JhZnR5cHJvZ3JhbW1lciIsImEiOiJjbTJuandmamQwNnMxMmtwdHFxcGdpM2ZsIn0.ZMxQHE2vy1EY6-kR9ev-Vg';
@@ -86,7 +86,8 @@ const WorldMap = () => {
     
     const map = new mapboxgl.Map({
       container: mapContainerRef.current,
-      style: 'mapbox://styles/craftyprogrammer/cm2nvv7ee004v01pia9156rg9', // Basic Map Style
+      style:"mapbox://styles/mapbox/light-v10",
+      // style: 'mapbox://styles/craftyprogrammer/cm2nvv7ee004v01pia9156rg9', // Basic Map Style
       center: [0, 20],  // Initial position (Longitude, Latitude)
       zoom: 1, // initial zoom
       maxZoom: 4, // prevent zooming in too much
@@ -94,6 +95,11 @@ const WorldMap = () => {
       maxBounds: [[-180, -85], [180, 85]], // limit panning to world bounds
       dragRotate: false, // disable 3D rotation
       touchZoomRotate: false // disable 3D touch rotation
+    });
+
+    map.addSource("geo-json-data", {
+      type: 'geojson',
+      data: geodata,
     });
 
     const bounds = [[-180, -85], [180, 85]];  // Coordinates [Southwest, Northeast]
