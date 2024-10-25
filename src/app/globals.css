@@ -2,20 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+
+.custom-marker {
+  animation-name: grow;
+  animation-iteration-count: infinite;
+  animation-duration: .4s;
+  animation-timing-function: linear;
+  width: 15px;
+  height: 15px;
+  opacity: 1;
+  box-shadow: 1px 1px 4px red;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@keyframes grow {
+  from {
+    opacity: 1;
   }
-}
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  to {
+    opacity: 0;
+  }
 }
