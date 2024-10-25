@@ -86,7 +86,7 @@ const WorldMap = () => {
     
     const map = new mapboxgl.Map({
       container: mapContainerRef.current,
-      style:"mapbox://styles/mapbox/light-v10",
+      style:"mapbox://styles/mapbox/dark-v11",
       // style: 'mapbox://styles/craftyprogrammer/cm2nvv7ee004v01pia9156rg9', // Basic Map Style
       center: [0, 20],  // Initial position (Longitude, Latitude)
       zoom: 1, // initial zoom
