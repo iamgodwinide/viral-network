@@ -6,7 +6,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';  // Import Mapbox CSS
 import styles from "./styles.module.css"
 import cities from './data/cities/unified.json';
 import popupData from './data/popups/index.json';
-import geodata from './custom.geo.json';
+
 
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiY3JhZnR5cHJvZ3JhbW1lciIsImEiOiJjbTJuandmamQwNnMxMmtwdHFxcGdpM2ZsIn0.ZMxQHE2vy1EY6-kR9ev-Vg';
@@ -86,8 +86,7 @@ const WorldMap = () => {
     
     const map = new mapboxgl.Map({
       container: mapContainerRef.current,
-      style:"mapbox://styles/mapbox/dark-v11",
-      // style: 'mapbox://styles/craftyprogrammer/cm2nvv7ee004v01pia9156rg9', // Basic Map Style
+      style: 'mapbox://styles/mapbox/standard-satellite', // Basic Map Style
       center: [0, 20],  // Initial position (Longitude, Latitude)
       zoom: 1, // initial zoom
       maxZoom: 4, // prevent zooming in too much
@@ -111,15 +110,15 @@ const WorldMap = () => {
 
     map.on('load', () => {
 
-    const layers = map.getStyle().layers;
+    // const layers = map.getStyle().layers;
 
     // Iterate through all layers and remove any label-related layers
-    layers.forEach(function (layer) {
-        // Check if the layer type is 'symbol' (usually used for labels)
-        if (layer.type === 'symbol') {
-            map.removeLayer(layer.id);
-        }
-    });
+    // layers.forEach(function (layer) {
+    //     // Check if the layer type is 'symbol' (usually used for labels)
+    //     if (layer.type === 'symbol') {
+    //         map.removeLayer(layer.id);
+    //     }
+    // });
 
     setTimeout(()=> {
       displayMarker(map, mapboxgl);
@@ -159,7 +158,10 @@ const WorldMap = () => {
   if(!mounted) return <></>
   else return (
     <div className='relative flex flex-col h-screen text-white'>
-      <div style={{ width: '100%', height: '100%' }} ref={mapContainerRef} />
+      <div style={{ width: '100%', height: '100%',
+      filter: "grayscale(100%)"
+
+       }} ref={mapContainerRef} />
       {/* popup */}
       {
         showPopup
