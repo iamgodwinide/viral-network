@@ -71,13 +71,13 @@ const WorldMap = () => {
             .addTo(map);
       })
 
-      setInformed( prev => prev + 1705028 );
+      setInformed( prev => prev * 3);
   
       setTimeout(()=> {        
         if(batch<Object.keys(cities).length){
           displayMarker(map, mapboxgl, batch+1)
         }
-      }, 3000)
+      }, 10000)
   }
 
   
@@ -122,6 +122,7 @@ const WorldMap = () => {
 
     setTimeout(()=> {
       displayMarker(map, mapboxgl);
+      setInformed(prev => prev + 1124)
     }, 5000)
 
 
