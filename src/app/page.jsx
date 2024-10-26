@@ -13,18 +13,18 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiY3JhZnR5cHJvZ3JhbW1lciIsImEiOiJjbTJuandmamQwN
 
 const mapPopup = {
   "batch-0": 1,
-  "batch-10": 2,
-  "batch-20": 3,
-  "batch-30": 4,
-  "batch-40": 5,
-  "batch-50": 6,
-  "batch-60": 7,
-  "batch-70": 8,
-  "batch-80": 9,
-  "batch-90": 10,
-  "batch-100": 11,
-  "batch-120": 12,
-  "batch-140": 13,
+  "batch-1": 2,
+  "batch-2": 3,
+  "batch-3": 4,
+  "batch-4": 5,
+  "batch-5": 6,
+  "batch-6": 7,
+  "batch-7": 8,
+  "batch-8": 9,
+  "batch-9": 10,
+  "batch-10": 11,
+  "batch-11": 12,
+  "batch-12": 13,
 };
 
 const WorldMap = () => {
