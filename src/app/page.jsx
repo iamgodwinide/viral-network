@@ -77,7 +77,7 @@ const WorldMap = () => {
         if(batch<Object.keys(cities).length){
           displayMarker(map, mapboxgl, batch+1)
         }
-      }, 10000)
+      }, 1000 * 60)
   }
 
   
@@ -122,7 +122,7 @@ const WorldMap = () => {
 
     setTimeout(()=> {
       displayMarker(map, mapboxgl);
-      setInformed(prev => prev + 1124)
+      setInformed(prev => prev + 498,167.27)
     }, 5000)
 
 
@@ -219,7 +219,7 @@ const WorldMap = () => {
                   </div>
               </div>
             </div>
-            <progress className="progress progress-error bg-info h-5 my-1 w-full" value={Math.floor(informed/population)} max="100"></progress>
+            <progress className="progress progress-error bg-info h-5 my-1 w-full" value={Math.floor(informed/population) * 100} max="100"></progress>
           </div>
         </div>
       </div>
