@@ -35,6 +35,7 @@ const WorldMap = () => {
   const mapContainerRef = useRef(null);
   const citiesRef = useRef({});
   const currentBatchRef = useRef(0);
+  const informedRef = useRef(0);
   const popupData = useRef([]);
   const [loading, setLoading] = useState(true);
   
@@ -57,6 +58,7 @@ const WorldMap = () => {
             const data = await res.json();
             citiesRef.current = data.data.batches;
             currentBatchRef.current = data.data.currentBatch;
+            informedRef.current = informedMap[data.data.currentBatch];
             popupData.current = data.data.popupData;
             displayMarker(map);
         }
@@ -162,14 +164,14 @@ const WorldMap = () => {
             <div className='flex gap-5'>
               <div className='flex items-center font-bold'>
                 <img src="/information.png" width={20} alt="Info Icon" />
-                <div className='text-xs my-1'>INFORMED: {informedMap[currentBatchRef.current]}</div>
+                <div className='text-xs my-1'>INFORMED: {informedRef.current}</div>
               </div>
               <div className='flex items-center font-bold'>
                 <img src="/people.png" width={20} alt="People Icon" />
                 <div className='text-xs my-1'>Population: {population}</div>
               </div>
             </div>
-            <progress className="progress bg-info h-5 my-1 w-full" value={Math.floor(informedMap[currentBatchRef.current]/population) * 100} max="100"></progress>
+            <progress className="progress bg-info h-5 my-1 w-full" value={Math.floor(informedRef.current/population) * 100} max="100"></progress>
           </div>
         </div>
       </div>
