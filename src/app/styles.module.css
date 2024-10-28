@@ -57,9 +57,10 @@
     padding: .5em;
 }
 
+/* 
 .greyFilter {
     filter: grayscale(100%);
-}
+} */
 
 @media screen and (max-width: 1024px) {
     .infoContainer {

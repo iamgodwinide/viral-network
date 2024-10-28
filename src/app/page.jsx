@@ -1,15 +1,13 @@
-"use client"
+"use client";
 
 import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';  // Import Mapbox CSS
 import styles from "./styles.module.css"
-import cities from './data/cities/unified.json';
-import popupData from './data/popups/index.json';
+import Link from 'next/link';
+import Image from 'next/image';
 
-
-
-mapboxgl.accessToken = 'pk.eyJ1IjoiY3JhZnR5cHJvZ3JhbW1lciIsImEiOiJjbTJuandmamQwNnMxMmtwdHFxcGdpM2ZsIn0.ZMxQHE2vy1EY6-kR9ev-Vg';
+mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_KEY;
 
 const mapPopup = {
   "batch-0": 1,
@@ -19,213 +17,153 @@ const mapPopup = {
   "batch-4": 5,
   "batch-5": 6,
   "batch-6": 7,
-  "batch-7": 8,
-  "batch-8": 9,
-  "batch-9": 10,
-  "batch-10": 11,
-  "batch-11": 12,
-  "batch-12": 13,
+  "batch-7": 8
 };
 
 const WorldMap = () => {
   const mapContainerRef = useRef(null);
+  const citiesRef = useRef({});
+  const currentBatchRef = useRef(0);
+  const popupData = useRef([]);
+  const [loading, setLoading] = useState(true);
   const [informed, setInformed] = useState(0);
   const [population, setPopulation] = useState(8161972572);
-  const [popup, setPopup] = useState(null);
+  const [popup, setPopup] = useState({
+    "title": "",
+    "mainMessage": "",
+    "icon": "Pump.fun Icon.png",
+    "supportingNews": []
+  });
   const [news, setNews] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
   const [mounted, setMounted] = useState(false);
 
+  const getUpdates = async (map) => {
+    try { 
+        const data_uri = `${process.env.NEXT_PUBLIC_API_URI}/api/data`;
+        const res = await fetch(data_uri);
+        if (res.ok) {
+            const data = await res.json();
+            citiesRef.current = data.data.batches;
+            currentBatchRef.current = data.data.currentBatch;
+            popupData.current = data.data.popupData;
+            displayMarker(map);
+        }
+      } catch (error) {
+        console.error('Fetch error:', error);
+      }  
+  }
 
-  function createCustomMarker(iconUrl, size) {
+  const createCustomMarker = (iconUrl, size) => {
     const el = document.createElement('div');
     el.className = 'custom-marker';
-    el.style.backgroundImage = `url(${iconUrl})`; // Set the icon as the background
-    el.style.width = size + 'px'; // Set the width of the marker
-    el.style.height = size + 'px'; // Set the height of the marker
-    el.style.backgroundSize = '100%'; // Make the image cover the full element
+    el.style.backgroundImage = `url(${iconUrl})`;
+    el.style.width = size + 'px';
+    el.style.height = size + 'px';
+    el.style.backgroundSize = '100%';
     return el;
   }
-  
-  
-  function displayMarker(map, mapboxgl, batch=0) {
-      // show popup
-      if(mapPopup[`batch-${batch}`]){
-        const index = mapPopup[`batch-${batch}`];
-        setPopup(popupData[index-1]);
-        setNews(popupData[index-1].supportingNews.join(" "));
+
+  const displayMarker = (map, batch = 0) => {
+    const currentPopupIndex = mapPopup[`batch-${batch}`];
+    if (currentPopupIndex && popupData.current[currentPopupIndex - 1].title !== popup?.title) {
+        const currentPopupData = popupData.current[currentPopupIndex - 1];
+        setPopup(currentPopupData);
+        setNews(currentPopupData.supportingNews.join(" "));
         setShowPopup(true);
-      }
+    }
 
-
-      cities[`batch-${batch}`].forEach(city => {
-        const marker = {
-          coordinates: [city.lng, city.lat],
-          iconUrl: '/information.png',
-          size: 10
-        }
-  
-        const customMarker = createCustomMarker(marker.iconUrl, marker.size);
-        new mapboxgl.Marker(customMarker)
-            .setLngLat(marker.coordinates)
+    if (citiesRef.current[`batch-${batch}`]) {
+      citiesRef.current[`batch-${batch}`].forEach(city => {
+        const marker = createCustomMarker('red.png', 20);
+        new mapboxgl.Marker(marker)
+            .setLngLat([city.lng, city.lat])
             .addTo(map);
-      })
-
-      setInformed( prev => prev * 3);
-  
-      setTimeout(()=> {        
-        if(batch<Object.keys(cities).length){
-          displayMarker(map, mapboxgl, batch+1)
-        }
-      }, 1000 * 60)
+      });
+      if (batch < currentBatchRef.current) {
+        setTimeout(() => displayMarker(map, batch + 1), 500);
+      } else {
+        setLoading(false);
+      }
+    }
   }
 
-  
-  
-  const init = () => {
-    
+  const initMap = () => {
     const map = new mapboxgl.Map({
       container: mapContainerRef.current,
-      style: 'mapbox://styles/mapbox/standard-satellite', // Basic Map Style
-      center: [0, 20],  // Initial position (Longitude, Latitude)
-      zoom: 1, // initial zoom
-      maxZoom: 4, // prevent zooming in too much
+      style: "mapbox://styles/craftyprogrammer/cm2pa3zte008q01pmb2d4e97l",
+      center: [0, 20],
+      zoom: 1,
+      maxZoom: 4,
       projection: 'mercator',
-      maxBounds: [[-180, -85], [180, 85]], // limit panning to world bounds
-      dragRotate: false, // disable 3D rotation
-      touchZoomRotate: false // disable 3D touch rotation
+      maxBounds: [[-180, -85], [180, 85]],
+      dragRotate: false,
+      touchZoomRotate: false,
     });
-
-    const bounds = [[-180, -85], [180, 85]];  // Coordinates [Southwest, Northeast]
-
-    map.fitBounds(bounds, {
-        padding: 20 // Add some padding to the edges
-    });
-
-    map.setMaxBounds(bounds);
-
-    map.dragRotate.disable();  // Disable rotation
-    map.touchZoomRotate.disableRotation();  // Disable touch rotation on mobile
-
 
     map.on('load', () => {
-
-    // const layers = map.getStyle().layers;
-
-    // Iterate through all layers and remove any label-related layers
-    // layers.forEach(function (layer) {
-    //     // Check if the layer type is 'symbol' (usually used for labels)
-    //     if (layer.type === 'symbol') {
-    //         map.removeLayer(layer.id);
-    //     }
-    // });
-
-    setTimeout(()=> {
-      displayMarker(map, mapboxgl);
-      setInformed(prev => prev + 498,167.27)
-    }, 5000)
-
-
-    const popup = new mapboxgl.Popup({ closeButton: false, closeOnClick: false });
-
-    map.on('mouseenter', 'countries-layer', (e) => {
-      const country = e.features[0].properties.name;
-      const spread = e.features[0].properties.adm0_a3;
-
-      popup.setLngLat(e.lngLat)
-        .setHTML(`<strong>${country}</strong><br>Spread: ${spreadData[spread]}%`)
-        .addTo(map);
+      getUpdates(map);
     });
 
-    map.on('mouseleave', 'countries-layer', () => {
-      popup.remove();
-    });
-
-    })
-    return () => map.remove();  // Clean up on component unmount
+    return map;
   }
 
-  useEffect(()=> {
-    if(mounted){
-      init();
+  useEffect(() => {
+    if (mounted) {
+      const map = initMap();
+      return () => map.remove();  // Clean up on unmount
     }
-  }, [mounted])
+  }, [mounted]);
 
-  useEffect(()=> {
-    setMounted(true);
-  },[]);
+  useEffect(() => setMounted(true), []);
 
+  if (!mounted) return <></>;
 
-  if(!mounted) return <></>
-  else return (
+  return (
     <div className='relative flex flex-col h-screen text-white'>
-      <div style={{ width: '100%', height: '100%',
-      filter: "grayscale(100%)"
-
-       }} ref={mapContainerRef} />
-      {/* popup */}
-      {
-        showPopup
-        ?<div className={`${styles.popupWrap}`}>
-        <div className={styles.popup}>
-          <img src={`${popup? "/"+popup.icon : ''}`} width={120} className={styles.popupImg} />
-          <div className='flex flex-col px-4'>
-            <h2 className='font-bold text-lg'>
-              {popup? popup.title : ""}
-            </h2>
-            <div className="divider"></div>
-            <p>
-              {popup? popup.mainMessage : ""}
-            </p>
-            <div className='flex justify-end mt-2 w-full'>
-              <button 
-              
-              onClick={()=> setShowPopup(false)}
-              className='bg-sky-600 w-20 text-white rounded-md'>OK</button>
+      <div style={{ width: '100%', height: '100%' }} ref={mapContainerRef} />
+      {showPopup && !loading && (
+        <div className={styles.popupWrap}>
+          <div className={styles.popup}>
+            <img src={`/${popup.icon}`} width={120} className={styles.popupImg} alt="Popup Icon" />
+            <div className='flex flex-col px-4'>
+              <h2 className='font-bold text-lg'>{popup.title}</h2>
+              <p>{popup.mainMessage}</p>
+              <button onClick={() => setShowPopup(false)} className='bg-sky-600 w-20 text-white rounded-md'>OK</button>
             </div>
           </div>
         </div>
-      </div>
-      :<></>
-      }
-      {/* news` */}
+      )}
       <div className={styles.newsWrap}>
-        <img src='/news.jpg' width={20} className={styles.infoImg}/>
-        {
-          popup
-          ?<marquee className="w-9/12 font-bold">
-          {news}
-        </marquee>
-        :<></>
-        }
+        <img src='/news.jpg' width={20} className={styles.infoImg} alt="News Icon"/>
+        {popup && !loading && <marquee className="w-9/12 font-bold">{news}</marquee>}
       </div>
-      {/* bottom info */}
       <div className={styles.infoWrap}>
         <div className={styles.infoContainer}>
-          <img src='/world.jpg' width={20} className={styles.infoImg}/>
+          <img src='/world.jpg' width={20} className={styles.infoImg} alt="World Icon"/>
           <div className='w-4/5'>
             <div className='text-sm text-white font-bold'>WORLD</div>
-            <div className='flex items-center gap-5'>
-              <div>
-                <div className='flex gap-1 items-center font-bold'>
-                  <img src="/information.png" width={20} alt="" />
-                  <div className='text-xs my-1'>INFORMED: {informed.toLocaleString()}</div>
-                  </div>
+            <div className='flex gap-5'>
+              <div className='flex items-center font-bold'>
+                <img src="/information.png" width={20} alt="Info Icon" />
+                <div className='text-xs my-1'>INFORMED: {informed}</div>
               </div>
-              <div>
-                <div className='flex gap-1 items-center font-bold'>
-                  <img src="/people.png" width={20} alt="" />
-                  <div className='text-xs my-1'>Population: {population.toLocaleString()}</div>
-                  </div>
+              <div className='flex items-center font-bold'>
+                <img src="/people.png" width={20} alt="People Icon" />
+                <div className='text-xs my-1'>Population: {population}</div>
               </div>
             </div>
-            <progress className="progress progress-error bg-info h-5 my-1 w-full" value={Math.floor(informed/population) * 100} max="100"></progress>
+            <progress className="progress bg-info h-5 my-1 w-full" value={Math.floor(informed/population) * 100} max="100"></progress>
           </div>
         </div>
+      </div>
+      {loading && <div className='fixed flex justify-center items-center top-0 left-0 w-screen h-screen bg-black'><h1 className='text-white text-3xl font-bold'>Loading, Please Wait...</h1></div>}
+      <div className='fixed top-7 right-2 w-44 flex gap-6'>
+        <Link href="/"><Image src='/telegram.png' alt='telegram' width={40} height={40}/></Link>
+        <Link href="/"><Image src='/twitter.png' alt='twitter' width={40} height={40}/></Link>
       </div>
     </div>
   );
-
 };
 
 export default WorldMap;
