@@ -152,7 +152,9 @@ const WorldMap = () => {
         <img src='/news.jpg' width={20} className={styles.infoImg} alt="News Icon"/>
         {popup && !loading && <marquee className="w-9/12 font-bold">{news}</marquee>}
       </div>
-      <div className={styles.infoWrap}>
+      {
+        !loading
+        &&<div className={styles.infoWrap}>
         <div className={styles.infoContainer}>
           <img src='/world.jpg' width={20} className={styles.infoImg} alt="World Icon"/>
           <div className='w-4/5'>
@@ -171,6 +173,7 @@ const WorldMap = () => {
           </div>
         </div>
       </div>
+      }
       {loading && <div className='fixed flex justify-center items-center top-0 left-0 w-screen h-screen bg-black'><h1 className='text-white text-3xl font-bold'>Loading, Please Wait...</h1></div>}
       <div className='fixed top-7 right-2 w-44 flex gap-6'>
         <Link href="/"><Image src='/telegram.png' alt='telegram' width={40} height={40}/></Link>
