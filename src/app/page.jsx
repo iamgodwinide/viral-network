@@ -140,7 +140,10 @@ const WorldMap = () => {
             <div className='flex flex-col px-4'>
               <h2 className='font-bold text-lg'>{popup.title}</h2>
               <p>{popup.mainMessage}</p>
-              <button onClick={() => setShowPopup(false)} className='bg-sky-600 w-20 text-white rounded-md'>OK</button>
+              <div className="divider"></div>
+              <div className="flex flex-end justify-end w-full">
+                <button onClick={() => setShowPopup(false)} className='bg-sky-600 w-20 text-white rounded-md'>OK</button>
+              </div>
             </div>
           </div>
         </div>
