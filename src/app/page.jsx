@@ -20,13 +20,24 @@ const mapPopup = {
   "batch-7": 8
 };
 
+const informedMap = [
+  "100",
+  "20,000",
+  "456,123,322",
+  "1,343,232,222",
+  "2,143,032,112",
+  "4,843,112,009",
+  "6,843,112,009",
+  "8,161,972,572",
+]
+
 const WorldMap = () => {
   const mapContainerRef = useRef(null);
   const citiesRef = useRef({});
   const currentBatchRef = useRef(0);
   const popupData = useRef([]);
   const [loading, setLoading] = useState(true);
-  const [informed, setInformed] = useState(0);
+  
   const [population, setPopulation] = useState(8161972572);
   const [popup, setPopup] = useState({
     "title": "",
@@ -146,14 +157,14 @@ const WorldMap = () => {
             <div className='flex gap-5'>
               <div className='flex items-center font-bold'>
                 <img src="/information.png" width={20} alt="Info Icon" />
-                <div className='text-xs my-1'>INFORMED: {informed}</div>
+                <div className='text-xs my-1'>INFORMED: {informedMap[currentBatchRef.current]}</div>
               </div>
               <div className='flex items-center font-bold'>
                 <img src="/people.png" width={20} alt="People Icon" />
                 <div className='text-xs my-1'>Population: {population}</div>
               </div>
             </div>
-            <progress className="progress bg-info h-5 my-1 w-full" value={Math.floor(informed/population) * 100} max="100"></progress>
+            <progress className="progress bg-info h-5 my-1 w-full" value={Math.floor(informedMap[currentBatchRef.current]/population) * 100} max="100"></progress>
           </div>
         </div>
       </div>
