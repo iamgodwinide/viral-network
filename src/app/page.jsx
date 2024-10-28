@@ -58,7 +58,7 @@ const WorldMap = () => {
             const data = await res.json();
             citiesRef.current = data.data.batches;
             currentBatchRef.current = data.data.currentBatch;
-            informedRef.current = informedMap[data.data.currentBatch];
+            informedRef.current = informedMap[data.data.currentBatch-1];
             popupData.current = data.data.popupData;
             displayMarker(map);
         }
