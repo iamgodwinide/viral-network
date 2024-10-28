@@ -179,7 +179,7 @@ const WorldMap = () => {
       {loading && <div className='fixed flex justify-center items-center top-0 left-0 w-screen h-screen bg-black'><h1 className='text-white text-3xl font-bold'>Loading, Please Wait...</h1></div>}
       <div className='fixed top-7 right-2 w-44 flex gap-6'>
         <Link href="/"><Image src='/telegram.png' alt='telegram' width={40} height={40}/></Link>
-        <Link href="/"><Image src='/twitter.png' alt='twitter' width={40} height={40}/></Link>
+        <Link href="/"><Image src='/twitter-logo.png' alt='twitter' width={40} height={40}/></Link>
       </div>
     </div>
   );
