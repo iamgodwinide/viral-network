@@ -53,7 +53,7 @@ const WorldMap = () => {
             }
 
             setLoading(false);
-            setTimeout(()=> getUpdates(map), 30000 );
+            setTimeout(()=> getUpdates(map), 60000 );
         }
       } catch (error) {
         console.error('Fetch error:', error);
@@ -79,7 +79,6 @@ const WorldMap = () => {
     });
     citiesCount.current = citiesRef.current.length;
     setLoading(false);
-    setTimeout(()=> getUpdates(map), 30000 );
   }
 
   const initMap = () => {
