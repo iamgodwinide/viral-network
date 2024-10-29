@@ -9,58 +9,51 @@ import Image from 'next/image';
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_KEY;
 
-const mapPopup = {
-  "batch-0": 1,
-  "batch-1": 2,
-  "batch-2": 3,
-  "batch-3": 4,
-  "batch-4": 5,
-  "batch-5": 6,
-  "batch-6": 7,
-  "batch-7": 8
-};
-
-const informedMap = [
-  "100",
-  "20,000",
-  "456,123,322",
-  "1,343,232,222",
-  "2,143,032,112",
-  "4,843,112,009",
-  "6,843,112,009",
-  "8,161,972,572",
-]
-
 const WorldMap = () => {
   const mapContainerRef = useRef(null);
   const citiesRef = useRef({});
-  const currentBatchRef = useRef(0);
-  const informedRef = useRef(0);
-  const popupData = useRef([]);
-  const [loading, setLoading] = useState(true);
-  
-  const [population, setPopulation] = useState(8161972572);
-  const [popup, setPopup] = useState({
+  const citiesCount = useRef(0);
+  const informedRef = useRef("0");
+  const headlines = useRef("");
+  const popup = useRef({
     "title": "",
     "mainMessage": "",
-    "icon": "Pump.fun Icon.png",
+    "icon": "",
     "supportingNews": []
   });
-  const [news, setNews] = useState(null);
-  const [showPopup, setShowPopup] = useState(false);
+  const population = useRef("8,161,972,572");
+  const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
 
   const getUpdates = async (map) => {
     try { 
-        const data_uri = `${process.env.NEXT_PUBLIC_API_URI}/api/data`;
+        const data_uri = "/api/data";
         const res = await fetch(data_uri);
         if (res.ok) {
             const data = await res.json();
-            citiesRef.current = data.data.batches;
-            currentBatchRef.current = data.data.currentBatch;
-            informedRef.current = informedMap[data.data.currentBatch-1].toLocaleString();
-            popupData.current = data.data.popupData;
-            displayMarker(map);
+            const {
+              news,
+              places,
+              transactions
+            } = data;
+            
+            if(news){
+              citiesRef.current = places;
+              informedRef.current = transactions;
+  
+  
+              if(popup.current.title === "" | news?.title !== popup.current.title ){
+                setShowPopup(true);
+                popup.current = news;
+                headlines.current = news?.supportingNews.join(" ");
+                setShowPopup(true);
+              }
+              displayMarker(map);
+            }
+
+            setLoading(false);
+            setTimeout(()=> getUpdates(map), 30000 );
         }
       } catch (error) {
         console.error('Fetch error:', error);
@@ -77,28 +70,16 @@ const WorldMap = () => {
     return el;
   }
 
-  const displayMarker = (map, batch = 0) => {
-    const currentPopupIndex = mapPopup[`batch-${batch}`];
-    if (currentPopupIndex && popupData.current[currentPopupIndex - 1].title !== popup?.title) {
-        const currentPopupData = popupData.current[currentPopupIndex - 1];
-        setPopup(currentPopupData);
-        setNews(currentPopupData.supportingNews.join(" "));
-        setShowPopup(true);
-    }
-
-    if (citiesRef.current[`batch-${batch}`]) {
-      citiesRef.current[`batch-${batch}`].forEach(city => {
-        const marker = createCustomMarker('red.png', 20);
-        new mapboxgl.Marker(marker)
-            .setLngLat([city.lng, city.lat])
-            .addTo(map);
-      });
-      if (batch < currentBatchRef.current) {
-        setTimeout(() => displayMarker(map, batch + 1), 500);
-      } else {
-        setLoading(false);
-      }
-    }
+  const displayMarker = (map) => {
+    citiesRef.current.slice(citiesCount.current, citiesRef.current.length).forEach(city => {
+      const marker = createCustomMarker('red.png', 20);
+      new mapboxgl.Marker(marker)
+          .setLngLat([city.lng, city.lat])
+          .addTo(map);
+    });
+    citiesCount.current = citiesRef.current.length;
+    setLoading(false);
+    setTimeout(()=> getUpdates(map), 30000 );
   }
 
   const initMap = () => {
@@ -138,10 +119,10 @@ const WorldMap = () => {
       {showPopup && !loading && (
         <div className={styles.popupWrap}>
           <div className={styles.popup}>
-            <img src={`/${popup.icon}`} width={120} className={styles.popupImg} alt="Popup Icon" />
+            <img src={`/${popup.current?.icon}`} width={120} className={styles.popupImg} alt="Popup Icon" />
             <div className='flex flex-col px-4'>
-              <h2 className='font-bold text-lg'>{popup.title}</h2>
-              <p>{popup.mainMessage}</p>
+              <h2 className='font-bold text-lg'>{popup.current?.title}</h2>
+              <p>{popup.current?.mainMessage}</p>
               <div className="divider"></div>
               <div className="flex flex-end justify-end w-full">
                 <button onClick={() => setShowPopup(false)} className='bg-sky-600 w-20 text-white rounded-md'>OK</button>
@@ -152,7 +133,7 @@ const WorldMap = () => {
       )}
       <div className={styles.newsWrap}>
         <img src='/news.jpg' width={20} className={styles.infoImg} alt="News Icon"/>
-        {popup && !loading && <marquee className="w-9/12 font-bold">{news}</marquee>}
+        {popup.current && !loading && <marquee className="w-9/12 font-bold">{headlines.current}</marquee>}
       </div>
       {
         !loading
@@ -168,16 +149,15 @@ const WorldMap = () => {
               </div>
               <div className='flex items-center font-bold'>
                 <img src="/people.png" width={20} alt="People Icon" />
-                <div className='text-xs my-1'>Population: {population}</div>
+                <div className='text-xs my-1'>Population: {population.current}</div>
               </div>
             </div>
-            <progress className="progress bg-info h-5 my-1 w-full" value={Math.floor(informedRef.current/population) * 100} max="100"></progress>
           </div>
         </div>
       </div>
       }
       {loading && <div className='fixed flex justify-center items-center top-0 left-0 w-screen h-screen bg-black'><h1 className='text-white text-3xl font-bold'>Loading, Please Wait...</h1></div>}
-      <div className='fixed top-7 right-2 w-44 flex gap-6'>
+      <div className='fixed top-7 right-2 w-24 flex flex-col gap-10'>
         <Link href="/"><Image src='/telegram.png' alt='telegram' width={40} height={40}/></Link>
         <Link href="/"><Image src='/twitter-logo.png' alt='twitter' width={40} height={40}/></Link>
       </div>
