@@ -37,17 +37,19 @@ const WorldMap = () => {
               transactions
             } = data;
             
-            setInformedRef(transactions.toLocaleString());
+            if(transactions > 0){
+              setInformedRef(transactions.toLocaleString());
 
-            setPopup(prev => {
-              if(news?.title !== prev.title ){
-                setHeadlines(() => news?.supportingNews.join(" "));
-                setShowPopup(true);
-                displayMarker(map, places);
-                return news;
-              }
-              return prev;
-            })
+              setPopup(prev => {
+                if(news?.title !== prev.title ){
+                  setHeadlines(() => news?.supportingNews.join(" "));
+                  setShowPopup(true);
+                  displayMarker(map, places);
+                  return news;
+                }
+                return prev;
+              })
+            }
 
             setLoading(false);
             setTimeout(()=> getUpdates(map), 30000 );
