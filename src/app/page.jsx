@@ -11,11 +11,10 @@ mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_KEY;
 
 const WorldMap = () => {
   const mapContainerRef = useRef(null);
-  const citiesRef = useRef({});
-  const citiesCount = useRef(0);
-  const informedRef = useRef("0");
-  const headlines = useRef("");
-  const popup = useRef({
+  const [citiesCount, setCitiesCount] = useState(0);
+  const [informedRef, setInformedRef] = useState("0");
+  const [headlines, setHeadlines] = useState("");
+  const [popup, setPopup] = useState({
     "title": "",
     "mainMessage": "",
     "icon": "",
@@ -38,22 +37,20 @@ const WorldMap = () => {
               transactions
             } = data;
             
-            if(news){
-              citiesRef.current = places;
-              informedRef.current = transactions;
-  
-  
-              if(popup.current.title === "" | news?.title !== popup.current.title ){
+            setInformedRef(transactions.toLocaleString());
+
+            setPopup(prev => {
+              if(news?.title !== prev.title ){
+                setHeadlines(() => news?.supportingNews.join(" "));
                 setShowPopup(true);
-                popup.current = news;
-                headlines.current = news?.supportingNews.join(" ");
-                setShowPopup(true);
+                displayMarker(map, places);
+                return news;
               }
-              displayMarker(map);
-            }
+              return prev;
+            })
 
             setLoading(false);
-            setTimeout(()=> getUpdates(map), 60000 );
+            setTimeout(()=> getUpdates(map), 30000 );
         }
       } catch (error) {
         console.error('Fetch error:', error);
@@ -70,14 +67,14 @@ const WorldMap = () => {
     return el;
   }
 
-  const displayMarker = (map) => {
-    citiesRef.current.slice(citiesCount.current, citiesRef.current.length).forEach(city => {
-      const marker = createCustomMarker('red.png', 20);
+  const displayMarker = (map, places) => {
+    places.slice(citiesCount, places.length).forEach(city => {
+      const marker = createCustomMarker('Information.png', 20);
       new mapboxgl.Marker(marker)
           .setLngLat([city.lng, city.lat])
           .addTo(map);
     });
-    citiesCount.current = citiesRef.current.length;
+    setCitiesCount(places.length);
     setLoading(false);
   }
 
@@ -118,10 +115,10 @@ const WorldMap = () => {
       {showPopup && !loading && (
         <div className={styles.popupWrap}>
           <div className={styles.popup}>
-            <img src={`/${popup.current?.icon}`} width={120} className={styles.popupImg} alt="Popup Icon" />
+            <img src={`/${popup?.icon}`} width={120} className={styles.popupImg} alt="Popup Icon" />
             <div className='flex flex-col px-4'>
-              <h2 className='font-bold text-lg'>{popup.current?.title}</h2>
-              <p>{popup.current?.mainMessage}</p>
+              <h2 className='font-bold text-lg'>{popup?.title}</h2>
+              <p>{popup?.mainMessage}</p>
               <div className="divider"></div>
               <div className="flex flex-end justify-end w-full">
                 <button onClick={() => setShowPopup(false)} className='bg-sky-600 w-20 text-white rounded-md'>OK</button>
@@ -131,24 +128,20 @@ const WorldMap = () => {
         </div>
       )}
       <div className={styles.newsWrap}>
-        <img src='/news.jpg' width={20} className={styles.infoImg} alt="News Icon"/>
-        {popup.current && !loading && <marquee className="w-9/12 font-bold">{headlines.current}</marquee>}
+        <img src='/news.jpg' width={10} className={styles.infoImg} alt="News Icon"/>
+        {popup && !loading && <marquee className="font-bold">{headlines}</marquee>}
       </div>
       {
         !loading
         &&<div className={styles.infoWrap}>
         <div className={styles.infoContainer}>
-          <img src='/world.jpg' width={20} className={styles.infoImg} alt="World Icon"/>
-          <div className='w-4/5'>
-            <div className='text-sm text-white font-bold'>WORLD</div>
+          <div className='w-full p-3 flex justify-center items-center'>
             <div className='flex gap-5'>
               <div className='flex items-center font-bold'>
-                <img src="/information.png" width={20} alt="Info Icon" />
-                <div className='text-xs my-1'>INFORMED: {informedRef.current}</div>
+                <div className='text-xs my-1'>INFORMED: {informedRef}</div>
               </div>
               <div className='flex items-center font-bold'>
-                <img src="/people.png" width={20} alt="People Icon" />
-                <div className='text-xs my-1'>Population: {population.current}</div>
+                <div className='text-xs my-1'>POPULATION: {population.current}</div>
               </div>
             </div>
           </div>
@@ -156,7 +149,7 @@ const WorldMap = () => {
       </div>
       }
       {loading && <div className='fixed flex justify-center items-center top-0 left-0 w-screen h-screen bg-black'><h1 className='text-white text-3xl font-bold'>Loading, Please Wait...</h1></div>}
-      <div className='fixed top-7 right-2 w-24 flex flex-col gap-10'>
+      <div className='fixed top-1/4 bg-black bg-opacity-50 right-2 p-4 rounded flex flex-col gap-10'>
         <Link href="/"><Image src='/telegram.png' alt='telegram' width={40} height={40}/></Link>
         <Link href="/"><Image src='/twitter-logo.png' alt='twitter' width={40} height={40}/></Link>
       </div>
