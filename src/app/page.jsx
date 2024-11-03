@@ -117,7 +117,7 @@ const WorldMap = () => {
       {showPopup && popup.title && !loading && (
         <div className={styles.popupWrap}>
           <div className={styles.popup}>
-            <img src={`/${popup?.icon}`} width={120} className={styles.popupImg} alt="Popup Icon" />
+            <img src={`${popup?.icon}`} width={120} className={styles.popupImg} alt="Popup Icon" />
             <div className='flex flex-col px-4'>
               <h2 className='font-bold text-lg'>{popup?.title}</h2>
               <p>{popup?.mainMessage}</p>
