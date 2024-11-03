@@ -71,7 +71,7 @@ const WorldMap = () => {
 
   const displayMarker = (map, places) => {
     places.slice(citiesCount, places.length).forEach(city => {
-      const marker = createCustomMarker('Information.png', 20);
+      const marker = createCustomMarker('https://i.postimg.cc/4yr5H3c8/Information.png', 20);
       new mapboxgl.Marker(marker)
           .setLngLat([city.lng, city.lat])
           .addTo(map);
@@ -130,7 +130,6 @@ const WorldMap = () => {
         </div>
       )}
       <div className={styles.newsWrap}>
-        <img src='/news.jpg' width={10} className={styles.infoImg} alt="News Icon"/>
         {popup && !loading && <marquee className="font-bold">{headlines}</marquee>}
       </div>
       {
