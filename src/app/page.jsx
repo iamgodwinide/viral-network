@@ -112,7 +112,7 @@ const WorldMap = () => {
   return (
     <div className='relative flex flex-col h-screen text-white'>
       <div style={{ width: '100%', height: '100%' }} ref={mapContainerRef} />
-      {showPopup && !loading && (
+      {showPopup && popup.title && !loading && (
         <div className={styles.popupWrap}>
           <div className={styles.popup}>
             <img src={`/${popup?.icon}`} width={120} className={styles.popupImg} alt="Popup Icon" />
