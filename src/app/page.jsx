@@ -71,7 +71,7 @@ const WorldMap = () => {
 
   const displayMarker = (map, places) => {
     places.slice(citiesCount, places.length).forEach(city => {
-      const marker = createCustomMarker('https://i.postimg.cc/4yr5H3c8/Information.png', 20);
+      const marker = createCustomMarker('https://i.postimg.cc/pV7yfZJR/vecteezy-red-brush-circle-png-21911751.png', 20);
       new mapboxgl.Marker(marker)
           .setLngLat([city.lng, city.lat])
           .addTo(map);
@@ -139,7 +139,7 @@ const WorldMap = () => {
           <div className='w-full p-3 flex justify-center items-center'>
             <div className='flex gap-5'>
               <div className='flex items-center font-bold'>
-                <div className='text-xs my-1'>INFORMED: {informedRef}</div>
+                <div className='text-xs my-1'>TOTAL INFECTED: {informedRef}</div>
               </div>
               <div className='flex items-center font-bold'>
                 <div className='text-xs my-1'>POPULATION: {population.current}</div>
